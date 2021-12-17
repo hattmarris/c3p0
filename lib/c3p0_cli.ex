@@ -6,14 +6,12 @@ defmodule C3p0.Cli do
       switches: [
         debug: :boolean,
         message: :string,
-        repo: :string,
-        owner: :string
+        base: :string
       ],
       aliases: [
         d: :debug,
         m: :message,
-        r: :repo,
-        o: :owner
+        b: :base
       ]
     ]
 

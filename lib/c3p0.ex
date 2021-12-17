@@ -18,10 +18,9 @@ defmodule C3p0 do
   def interpret({opts, ["pr"], []}) do
     Logger.debug("Interpreted as a create pr")
 
-    owner = Keyword.get(opts, :owner, "participate")
-    repo = Keyword.get(opts, :repo, "main")
+    base = Keyword.get(opts, :base, "main")
 
-    Github.create_pr(owner, repo)
+    Github.create_pr(base)
   end
 
   def interpret({_opts, _args, _invalid}), do: "Invalid options args or subcommands"
