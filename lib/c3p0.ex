@@ -19,8 +19,9 @@ defmodule C3p0 do
     Logger.debug("Interpreted as a create pr")
 
     base = Keyword.get(opts, :base, "main")
+    message = Keyword.get(opts, :message)
 
-    Github.create_pr(base)
+    Github.create_pr(base, message)
   end
 
   def interpret({_opts, _args, _invalid}), do: "Invalid options args or subcommands"

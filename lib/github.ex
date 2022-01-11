@@ -3,28 +3,53 @@ defmodule C3p0.Github do
   alias C3p0.{Logger, Slack}
   alias Tentacat.{Client, Issues, Pulls}
 
-  def create_pr(base) do
+  def create_pr(base, message) do
     Logger.debug(base, label: "create_pr/2")
 
     token = System.get_env("GITHUB_API_TOKEN")
     client = Client.new(%{access_token: token})
-
     local_repo = cwd_repo()
-
     {owner, repo} = parse_remote_push(local_repo)
-
     branch = local_branch(local_repo)
 
+    git_data = {client, owner, repo, branch, base}
+
+    case branch |> attempt_push() |> issue_number_from_branch do
+      :no_issue -> no_issue_pipeline(git_data, message)
+      number -> issue_pipeline(number, git_data)
+    end
+  end
+
+  def issue_pipeline(issue_number, {client, owner, repo, branch, base}) do
     {:ok, _response} =
-      branch
-      |> attempt_push()
-      |> issue_number_from_branch()
+      issue_number
       |> find_issue({client, owner, repo})
       |> create_pr_title()
       |> create_pr_body()
       |> submit_pr({client, owner, repo, branch, base})
 
     IO.puts("PR created, slack notified")
+  end
+
+  def no_issue_pipeline({client, owner, repo, branch, base}, message) do
+    Logger.debug(branch, label: "no_issue_pipeline/1")
+
+    body = %{
+      title: "[deploy] #{message}",
+      body: "[deploy] #{message}",
+      head: branch,
+      base: base
+    }
+
+    Logger.debug(body, label: "PR body")
+
+    case Pulls.create(client, owner, repo, body) do
+      {201, pr, _resp} ->
+        no_issue_notify_slack(pr)
+
+      other ->
+        brexit(other, "Could not create pull request, exiting.")
+    end
   end
 
   def submit_pr({issue, title, body}, {client, owner, repo, branch, base}) do
@@ -80,6 +105,19 @@ defmodule C3p0.Github do
     PR ==> <#{html_url}|#{title}> <==
     """
 
+    slack_or_bust(message)
+  end
+
+  def no_issue_notify_slack(%{"title" => title, "html_url" => html_url}) do
+    message = ~s"""
+    Deploy (no issue): ready for code review -
+    PR ==> <#{html_url}|#{title}> <==
+    """
+
+    slack_or_bust(message)
+  end
+
+  def slack_or_bust(message) do
     case Slack.send_message(message) do
       {:ok, response} ->
         {:ok, response}
@@ -145,6 +183,7 @@ defmodule C3p0.Github do
   def issue_number_from_branch(branch) do
     case branch do
       "issue-" <> number -> number
+      "deploy-" <> _rest -> :no_issue
       other -> brexit(other, "Local branch name doesn't match format issue-<number>, exiting.")
     end
   end
