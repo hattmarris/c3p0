@@ -50,6 +50,8 @@ defmodule C3p0.Github do
       other ->
         brexit(other, "Could not create pull request, exiting.")
     end
+
+    IO.puts("PR created, slack notified")
   end
 
   def submit_pr({issue, title, body}, {client, owner, repo, branch, base}) do
