@@ -1,5 +1,5 @@
 defmodule C3p0 do
-  alias C3p0.{Github, Logger, Slack}
+  alias C3p0.{Github, Logger, Lxc, Slack}
 
   def interpret({_opts, ["start"], []}) do
     Logger.debug("Starting C3p0")
@@ -22,6 +22,12 @@ defmodule C3p0 do
     message = Keyword.get(opts, :message)
 
     Github.create_pr(base, message)
+  end
+
+  def interpret({opts, ["lxc", "list"], []}) do
+    Logger.debug("Interpreted as list lxc instances")
+
+    Lxc.list()
   end
 
   def interpret({_opts, _args, _invalid}), do: "Invalid options args or subcommands"
