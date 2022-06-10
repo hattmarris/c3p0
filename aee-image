@@ -8,9 +8,9 @@ lxc launch images:alpine/edge $CONTAINER
 
 sleep 2
 
-lxc exec $CONTAINER -- sh -c "apk update"
-lxc exec $CONTAINER -- sh -c "apk upgrade"
-lxc exec $CONTAINER -- sh -c "apk add elixir"
+lxc exec $CONTAINER -- apk update
+lxc exec $CONTAINER -- apk upgrade
+lxc exec $CONTAINER -- apk add elixir
 
 lxc stop $CONTAINER
 
