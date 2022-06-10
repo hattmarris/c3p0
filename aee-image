@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Create a fresh image of alpine/edge with latest erlang + elixir installed
+
+CONTAINER=alpine-edge
+
+lxc launch images:alpine/edge $CONTAINER
+
+sleep 2
+
+lxc exec $CONTAINER -- sh -c "apk update"
+lxc exec $CONTAINER -- sh -c "apk upgrade"
+lxc exec $CONTAINER -- sh -c "apk add elixir"
+
+lxc stop $CONTAINER
+
+lxc image delete aee.xz
+
+lxc publish $CONTAINER \
+  --alias aee.xz \
+  --compression="xz" \
+  description="Alpine edge amd64 + Elixir"
+
+lxc delete $CONTAINER
