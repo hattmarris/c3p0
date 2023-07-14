@@ -1,0 +1,1 @@
+lxc config device add $CONTAINER shared_dir disk path=$CONTAINER_PATH source=$HOST_PATH
