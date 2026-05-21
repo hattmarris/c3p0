@@ -24,12 +24,6 @@ defmodule C3p0 do
     Github.create_pr(base, message)
   end
 
-  def interpret({opts, ["lxc", "list"], []}) do
-    Logger.debug("Interpreted as list lxc instances")
-
-    Lxc.list()
-  end
-
   def interpret({_opts, _args, _invalid}), do: "Invalid options args or subcommands"
 
   def slack(message) do
