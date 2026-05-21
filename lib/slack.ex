@@ -2,45 +2,41 @@ defmodule C3p0.Slack do
   alias C3p0.Logger
   alias Jason
   alias HTTPoison
+  alias HTTPoison.Response
 
-  def send_message("" <> message) do
-    Logger.debug(message, label: "Matched send_message/1<string>")
+  def send_message("" <> message, opts \\ []) do
+    Logger.debug({message, opts}, label: "send_message/1")
 
-    token = System.get_env("SLACK_TOKEN")
-    channel = System.get_env("SLACK_CHANNEL_NAME") |> get_channel()
+    token = System.fetch_env!("SLACK_USER_TOKEN")
+    channel_default = System.get_env("SLACK_CHANNEL", "matt")
+    channel_name = Keyword.get(opts, :channel, channel_default)
+    channel = get_channel(channel_name)
 
     Logger.debug(channel, label: "The slack channel ID")
 
-    HTTPoison.post(
-      "https://slack.com/api/chat.postMessage",
+    headers = [
+      {"Authorization", "Bearer #{token}"},
+      {"Content-Type", "application/json"}
+    ]
+
+    body =
       Jason.encode!(%{
         channel: channel,
         text: message
-      }),
-      [
-        {"Authorization", "Bearer #{token}"},
-        {"Content-Type", "application/json"}
-      ]
-    )
-  end
+      })
 
-  def send_message(_message), do: {:error, "Can only send string messages"}
+    "https://slack.com/api/chat.postMessage"
+    |> HTTPoison.post(body, headers)
+    |> case do
+      {:ok, %Response{status_code: 200, body: "{\"ok" <> _} = resp} -> {:ok, resp}
+      {_, %Response{status_code: code}} -> {:error, code}
+    end
+  end
 
   defp get_channel(name) do
     case name do
-      "matt" ->
-        "DDUQVP62H"
-
-      "product" ->
-        "C013BAL8292"
-
-      "" ->
-        Logger.debug("get_channel/1 given empty string channel name, using default")
-        "DDUQVP62H"
-
-      nil ->
-        Logger.debug("get_channel/1 given nil channel name, using default")
-        "DDUQVP62H"
+      "matt" -> "D0A5W4L4W4D"
+      "code-connoisseurs" -> "C0ADSTV8ZL5"
     end
   end
 end

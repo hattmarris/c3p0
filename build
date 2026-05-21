@@ -1,3 +1,2 @@
 mix escript.build
 mix escript.install
-asdf reshim elixir

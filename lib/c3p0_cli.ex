@@ -6,12 +6,14 @@ defmodule C3p0.Cli do
       switches: [
         debug: :boolean,
         message: :string,
-        base: :string
+        base: :string,
+        channel: :string
       ],
       aliases: [
+        b: :base,
+        c: :channel,
         d: :debug,
-        m: :message,
-        b: :base
+        m: :message
       ]
     ]
 

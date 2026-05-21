@@ -1,5 +1,5 @@
 defmodule C3p0 do
-  alias C3p0.{Github, Logger, Lxc, Slack}
+  alias C3p0.{Github, Logger, Slack}
 
   def interpret({_opts, ["start"], []}) do
     Logger.debug("Starting C3p0")
@@ -8,11 +8,9 @@ defmodule C3p0 do
   end
 
   def interpret({opts, ["slack"], []}) do
-    message = Keyword.get(opts, :message)
+    Logger.debug(label: "Interpreted as send a message to slack")
 
-    Logger.debug(message, label: "Interpreted as send a message to slack")
-
-    slack(message)
+    slack(opts)
   end
 
   def interpret({opts, ["pr"], []}) do
@@ -26,10 +24,12 @@ defmodule C3p0 do
 
   def interpret({_opts, _args, _invalid}), do: "Invalid options args or subcommands"
 
-  def slack(message) do
-    case Slack.send_message(message) do
-      {:ok, _response} -> {:done, "Message sent."}
-      {:error, reason} -> {:error, "Something went wrong... #{reason}"}
+  def slack(opts \\ []) do
+    message = Keyword.fetch!(opts, :message)
+
+    case Slack.send_message(message, opts) do
+      {:ok, _resp} -> {:done, "Message sent."}
+      {:error, code} -> {:error, "Something went wrong... #{code}"}
     end
   end
 

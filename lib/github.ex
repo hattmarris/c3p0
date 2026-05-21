@@ -6,7 +6,7 @@ defmodule C3p0.Github do
   def create_pr(base, message) do
     Logger.debug(base, label: "create_pr/2")
 
-    token = System.get_env("GITHUB_API_TOKEN")
+    token = System.fetch_env!("GH_TOKEN")
     client = Client.new(%{access_token: token})
     local_repo = cwd_repo()
     {owner, repo} = parse_remote_push(local_repo)
