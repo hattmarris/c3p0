@@ -2,6 +2,8 @@
 ERL_AFLAGS = '-kernel shell_history enabled  -kernel shell_history_path \".erl.history\"'
 
 [tools]
-erlang = "28.4.2"
-elixir = "1.19.5-otp-28"
+# erlang = "28.4.2"
+# elixir = "1.19.5-otp-28"
+erlang="27.3.3"
+elixir="1.18.3-otp-27"
 claude = "latest"

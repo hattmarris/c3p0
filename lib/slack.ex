@@ -34,9 +34,18 @@ defmodule C3p0.Slack do
   end
 
   defp get_channel(name) do
-    case name do
-      "matt" -> "D0A5W4L4W4D"
-      "code-connoisseurs" -> "C0ADSTV8ZL5"
+    case Map.fetch(channel_map(), name) do
+      {:ok, id} -> id
+      :error -> name
+    end
+  end
+
+  defp channel_map do
+    with json when is_binary(json) and json != "" <- System.get_env("SLACK_CHANNELS"),
+         {:ok, map} when is_map(map) <- Jason.decode(json) do
+      map
+    else
+      _ -> %{}
     end
   end
 end

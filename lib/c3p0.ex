@@ -19,7 +19,13 @@ defmodule C3p0 do
     base = Keyword.get(opts, :base, "main")
     message = Keyword.get(opts, :message)
 
-    Github.create_pr(base, message)
+    Github.create_pr(base, message, opts)
+  end
+
+  def interpret({opts, ["slack-pr"], []}) do
+    Logger.debug("Interpreted as send pr-style slack message")
+
+    Github.slack_pr(opts)
   end
 
   def interpret({_opts, _args, _invalid}), do: "Invalid options args or subcommands"
