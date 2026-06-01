@@ -136,9 +136,13 @@ defmodule C3p0.Github do
   end
 
   def notify_slack(identifier, issue_url, %{"title" => title, "html_url" => html_url}, opts \\ []) do
+    # message = ~s"""
+    # Issue: <#{issue_url}|#{identifier}> is ready for code review -
+    # PR ==> <#{html_url}|#{title}> <==
+    # """
     message = ~s"""
-    Issue: <#{issue_url}|#{identifier}> is ready for code review -
-    PR ==> <#{html_url}|#{title}> <==
+    *<#{issue_url}|[#{identifier}] #{title}>*
+    <#{html_url}|#{html_url}>
     """
 
     slack_or_bust(message, opts)
